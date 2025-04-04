@@ -1,8 +1,10 @@
-    // Navigation functionality
+// Navigation functionality
 const navSlide = () => {
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
     const navLinks = document.querySelectorAll('.nav-links li');
+    
+    if (!burger || !nav) return;
     
     burger.addEventListener('click', () => {
         // Toggle Nav
@@ -25,6 +27,9 @@ const navSlide = () => {
 // Scroll effect for header
 const scrollHeader = () => {
     const header = document.querySelector('header');
+    
+    if (!header) return;
+    
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
             header.style.padding = '15px 0';
@@ -43,18 +48,24 @@ const resumeModal = () => {
     const closeBtn = document.querySelector('.close-btn');
     const closeModalBtn = document.querySelector('.close-modal');
     
+    if (!modal || !resumeBtn) return;
+    
     resumeBtn.addEventListener('click', (e) => {
         e.preventDefault();
         modal.style.display = 'flex';
     });
     
-    closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
     
-    closeModalBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
     
     window.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -82,7 +93,7 @@ const formSubmit = () => {
             // Reset form
             form.reset();
             
-            // Show success message (you could enhance this with a proper notification)
+            // Show success message
             alert('Thank you for your message! I will get back to you soon.');
         });
     }
@@ -99,9 +110,9 @@ const smoothScroll = () => {
             // Close mobile menu if open
             const nav = document.querySelector('.nav-links');
             const burger = document.querySelector('.burger');
-            if (nav.classList.contains('nav-active')) {
+            if (nav && nav.classList.contains('nav-active')) {
                 nav.classList.remove('nav-active');
-                burger.classList.remove('toggle');
+                if (burger) burger.classList.remove('toggle');
                 document.querySelectorAll('.nav-links li').forEach(link => {
                     link.style.animation = '';
                 });
@@ -111,33 +122,53 @@ const smoothScroll = () => {
             const targetId = link.getAttribute('href');
             const targetSection = document.querySelector(targetId);
             
-            window.scrollTo({
-                top: targetSection.offsetTop - 80,
-                behavior: 'smooth'
-            });
+            if (targetSection) {
+                window.scrollTo({
+                    top: targetSection.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
         });
     });
 };
 
-// Initialize all functions
-document.addEventListener('DOMContentLoaded', () => {
-    navSlide();
-    scrollHeader();
-    resumeModal();
-    formSubmit();
-    smoothScroll();
-});
-
-// Animation on scroll (basic implementation)
-window.addEventListener('scroll', () => {
+// Add animation class to sections on scroll
+const animateSections = () => {
     const sections = document.querySelectorAll('section');
     
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
+    if (sections.length === 0) return;
+    
+    const checkScroll = () => {
+        sections.forEach(section => {
+            const sectionTop = section.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if (sectionTop < windowHeight * 0.75) {
+                section.classList.add('active');
+            }
+        });
+    };
+    
+    // Check on initial load
+    checkScroll();
+    
+    // Check on scroll
+    window.addEventListener('scroll', checkScroll);
+};
+
+// Check if DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize all functions
+    try {
+        navSlide();
+        scrollHeader();
+        resumeModal();
+        formSubmit();
+        smoothScroll();
+        animateSections();
         
-        if (window.scrollY >= (sectionTop - sectionHeight / 3)) {
-            section.classList.add('active');
-        }
-    });
+        console.log('Portfolio scripts initialized successfully');
+    } catch (error) {
+        console.error('Error initializing portfolio scripts:', error);
+    }
 });
